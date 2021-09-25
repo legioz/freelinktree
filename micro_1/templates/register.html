@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="hero is-primary is-fullheight">
+    <div class="hero-body">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+                    <form id="loginform" action="{{ request.url_for('register') }}" method="POST" class="box">
+                        <div class="field">
+                            <label for="" class="label">Email</label>
+                            <div class="control has-icons-left">
+                                <input id="email" name="email" type="email" placeholder="example@email.com" class="input" required>
+                                <span class="icon is-small is-left">
+                                    <i class="fa fa-envelope"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="" class="label">Password</label>
+                            <div class="control has-icons-left">
+                                <input id="password" name="password" type="password" placeholder="*******" class="input" required>
+                                <span class="icon is-small is-left">
+                                    <i class="fa fa-lock"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="" class="checkbox">
+                                <input type="checkbox" required>
+                                I accept the <a href="{{ request.url_for('terms_of_use') }}">terms of use</a>.
+                            </label>
+                        </div>
+                        <div class="field">
+                            <button id="form_button" type="submit" class="button is-primary">
+                                Register
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    {% if error %}
+        <script>alert("Email already in use!")</script>
+    {% endif %}
+{% endblock %}
+

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>FreeLinktree</title>
+    <!-- Base CSS -->
+    <link href="/static/css/base.css" rel="stylesheet">
+    <!-- Font Awesome Icons 5.4.1 -->
+    <link rel="stylesheet" href="/static/css/fontawesome541-all.css">
+    <script defer src="/static/js/fontawesome541-all.js"></script>
+    <!-- Bulma Version 0.9.2-->
+    <link rel="stylesheet" href="/static/css/bulma.css" />
+    <!-- AOS Lib -->
+    <link href="/static/css/aos.css" rel="stylesheet">
+    <script src="/static/js/aos.js"></script>
+    <!-- Google Fonts Lib -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+    <!-- Base JavaScript -->
+    <script src="/static/js/base.js"></script>
+</head>
+
+<body>
+    <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item">
+                <img src="/static/assets/logo.png" alt="FreeLinkTree" width="30" height="28">
+            </a>
+
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
+                data-target="navbarBasicExample">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="/">
+                    Home
+                </a>
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    {% if request.session %}
+                    <div class="buttons">
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <span class="icon-text has-icons-left">
+                                <span class="icon is-left">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <span>User Access</span>
+                            </span>
+
+                            <div class="navbar-dropdown is-right">
+                                <a class="navbar-item has-text-link"
+                                    href="{{ request.url_for('links') }}/{{ request.session.get('user') }}">
+                                    {{ request.session.get('user') }}
+                                </a>
+                                <a class="navbar-item">
+                                    Contact
+                                </a>
+                                <hr class="navbar-divider">
+                                <a class="navbar-item" href="{{ request.url_for('logout') }}">
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="buttons">
+                    <a class="button is-primary" href="{{ request.url_for('register') }}">
+                        <strong>Register</strong>
+                    </a>
+                    <a class="button is-light" href="{{ request.url_for('login') }}">
+                        Login
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        </div>
+    </nav>
+    {% block content %}
+    {% endblock %}

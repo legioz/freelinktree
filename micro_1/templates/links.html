@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="hero is-primary is-fullheight">
+    <div class="hero-body">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+                    <div class="box has-text-centered is-fullwidth">
+                        <table class="table is-hoverable is-fullwidth">
+                            {% for link in links %}
+                            <tr>
+                                <td>
+                                    <a class="has-text-link" href="{{ link['link'] }}">{{ link['description'] }}</a>
+                                    {% if request.session %}
+                                    <a class="button is-rounded is-danger is-small ml-4 is-narrow is-pulled-right"
+                                        href="{{ request.url_for('links') }}/delete/{{ link['key'] }}">Delete</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                        {% if request.session %}
+                        <hr>
+                        <br>
+                        <form method="POST" action="{{ request.url_for('create_links') }}">
+                            <h1 class="subtitle has-text-black mb-2">New Link</h1>
+                            <div class="field">
+                                <input id="description" name="description" type="text" class="input"
+                                    placeholder="Description" required maxlength="150">
+                            </div>
+                            <div class="field">
+                                <input id="new_link" name="new_link" type="text" class="input"
+                                    placeholder="https://freelinktree.com" required maxlength="50">
+                            </div>
+                            <button type="submit" class="button is-primary is-rounded">Create</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% if error %}
+<script>
+    alert("Email/Password Incorrect!")
+</script>
+{% endif %}
+{% endblock %}
