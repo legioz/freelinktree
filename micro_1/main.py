@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from typing import Optional
 import hashlib
 import config
+import re
 
 
 app = FastAPI(
@@ -21,8 +22,9 @@ deta = Deta(config.SECRET_KEY)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-users = deta.Base("users")
+db_users = deta.Base("users")
 db_links = deta.Base("user_links")
+
 
 def get_current_user(request: Request):
     if not request.session.get("user"):
@@ -34,7 +36,14 @@ def get_current_user(request: Request):
         return request.session.get("user")
 
 
-@app.get("terms_of_use", response_class=HTMLResponse)
+def validate_username(name: str) -> bool:
+    if re.match(r'^[A-Za-z0-9_]+$', name) and len(name) > 5:
+        return True
+    else:
+        return False
+
+
+@app.get("/terms", response_class=HTMLResponse)
 async def terms_of_use(request: Request):
     return templates.TemplateResponse("terms_of_use.html", {"request": request})
 
@@ -42,22 +51,28 @@ async def terms_of_use(request: Request):
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     if request.session:
-        return RedirectResponse("links")
+        return RedirectResponse(request.url_for("links"))
     return RedirectResponse("login")
 
 
 @app.post("/register")
 @app.get("/register", response_class=HTMLResponse)
-async def register(request: Request, email: str=Form(None), password: str=Form(None)):
+async def register(request: Request, email: str=Form(None), password: str=Form(None), name: str=Form(None)):
     context = {"request": request, "error": False}
     if request.method == "POST":
         if email and password:
             try:
                 data = {
+                    "name": name,
                     "email": email,
                     "password": hashlib.sha256(password.encode('utf-8')).hexdigest(),
                 }
-                users.insert(data)
+                check_unique_email = db_users.fetch({"email": email}).count
+                if check_unique_email > 0:
+                    raise Exception("Email already in use")
+                if not validate_username(name):
+                    raise Exception("Invalid username")
+                db_users.insert(data, name)
                 return RedirectResponse("login", status.HTTP_302_FOUND)
             except:
                 context.update({"error": True})
@@ -74,11 +89,11 @@ async def login(request: Request, email: str=Form(None), password: str=Form(None
                 "email": email,
                 "password":  hashlib.sha256(password.encode('utf-8')).hexdigest()
             }
-            result = users.fetch(query, limit=1)
+            result = db_users.fetch(query, limit=1)
             if result.count >= 1:
                 current_user = result.items[0].get("key")
                 request.session.update({"user": current_user})
-                return RedirectResponse("links", status.HTTP_302_FOUND)
+                return RedirectResponse(request.url_for("links"), status.HTTP_302_FOUND)
         context.update({"error": True})
     return templates.TemplateResponse("login.html", context)
 
@@ -108,19 +123,6 @@ async def recovery(request: Request, email: str=Form(None)):
     return templates.TemplateResponse("recovery.html", context)
 
 
-@app.get("/links", response_class=HTMLResponse)
-@app.get("/links/{other_user}", response_class=HTMLResponse)
-async def links(request: Request, other_user: str=None):
-    context = {"request": request, "links": []}
-    if not other_user:
-        user = get_current_user(request)
-    else:
-        user = other_user
-    user_links_list = db_links.fetch({"user": user})
-    context.update({"links": user_links_list.items})
-    return templates.TemplateResponse("links.html", context)
-
-
 @app.get("/links/delete/{id}")
 async def delete_links(request: Request, id: str):
     if not request.session:
@@ -142,3 +144,17 @@ async def create_links(request: Request, new_link: str=Form(...), description: s
     }
     db_links.put(data)
     return RedirectResponse(request.url_for("links"), status.HTTP_302_FOUND)
+
+
+@app.get("/{other_user}", response_class=HTMLResponse)
+@app.get("/links", response_class=HTMLResponse)
+async def links(request: Request, other_user: str=None):
+    context = {"request": request, "links": []}
+    if not other_user:
+        user = get_current_user(request)
+    else:
+        user = other_user
+    print(user)
+    user_links_list = db_links.fetch({"user": user})
+    context.update({"links": user_links_list.items, "username": user})
+    return templates.TemplateResponse("links.html", context)

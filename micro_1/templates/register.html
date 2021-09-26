@@ -9,6 +9,15 @@
                 <div class="column is-5-tablet is-4-desktop is-3-widescreen">
                     <form id="loginform" action="{{ request.url_for('register') }}" method="POST" class="box">
                         <div class="field">
+                            <label for="" class="label">Username</label>
+                            <div class="control has-icons-left">
+                                <input id="name" name="name" type="text" placeholder="unique_username" class="input" required>
+                                <span class="icon is-small is-left">
+                                    <i class="fa fa-user"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="field">
                             <label for="" class="label">Email</label>
                             <div class="control has-icons-left">
                                 <input id="email" name="email" type="email" placeholder="example@email.com" class="input" required>
@@ -29,7 +38,7 @@
                         <div class="field">
                             <label for="" class="checkbox">
                                 <input type="checkbox" required>
-                                I accept the <a href="{{ request.url_for('terms_of_use') }}">terms of use</a>.
+                                I accept the <a class="has-text-primary" href="{{ request.url_for('terms_of_use') }}">terms of use</a>.
                             </label>
                         </div>
                         <div class="field">
@@ -44,7 +53,7 @@
     </div>
 </section>
     {% if error %}
-        <script>alert("Email already in use!")</script>
+        <script>alert("Username or email already in use!")</script>
     {% endif %}
 {% endblock %}
 

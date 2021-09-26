@@ -7,7 +7,11 @@
         <div class="container">
             <div class="columns is-centered">
                 <div class="column is-5-tablet is-4-desktop is-3-widescreen">
-                    <div class="box has-text-centered is-fullwidth">
+                    {% if not request.session %}
+                        <p class="title has-text-centered is-fullwidth has-text-weight-light"><a href="/{{ username }}">@{{ username }}</a></p>
+                        <br>
+                    {% endif %}
+                    <div class="box has-text-centered is-fullwidth mt-1">
                         <table class="table is-hoverable is-fullwidth">
                             {% for link in links %}
                             <tr>

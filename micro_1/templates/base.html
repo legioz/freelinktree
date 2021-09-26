@@ -58,7 +58,7 @@
 
                             <div class="navbar-dropdown is-right">
                                 <a class="navbar-item has-text-link"
-                                    href="{{ request.url_for('links') }}/{{ request.session.get('user') }}">
+                                    href="/{{ request.session.get('user') }}">
                                     {{ request.session.get('user') }}
                                 </a>
                                 <a class="navbar-item">
